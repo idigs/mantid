@@ -22,12 +22,6 @@ on:
         default: ANY
         required: true
 
-
-# cancel previous job if a new commit is pushed
-concurrency:
-  group: ${{ github.workflow }}-${{ github.ref }}
-  cancel-in-progress: true
-
 jobs:
   linux-build-and-test:
     runs-on:
