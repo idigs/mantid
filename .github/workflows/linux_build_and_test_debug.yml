@@ -1,4 +1,4 @@
-name: Linux unit tests and system tests
+name: Linux unit tests and system tests (debug)
 
 on:
   pull_request:
