@@ -98,8 +98,7 @@ jobs:
       #
 
     needs:
-      - job_precommit
-      - job_check_conflict
+      - job_setup
 
     steps:
       - name: placeholder
@@ -119,9 +118,7 @@ jobs:
       #
 
     needs:
-      - job_precommit
-      - job_check_conflict
-      - job_cpp_check
+      - job_setup
 
     steps:
       - name: placeholder
@@ -134,11 +131,11 @@ jobs:
       - self-hosted
       - Linux
       - X64
-    #
-    # If the user who clicked "Run Workflow" button left the RUNNER_LABEL field blank,
-    # the default evaluated output is the string 'self-hosted'.
-    # Otherwise set it to the value the user specified when they clicked "Run Workflow"
-    #
+      #
+      # If the user who clicked "Run Workflow" button left the RUNNER_LABEL field blank,
+      # the default evaluated output is the string 'self-hosted'.
+      # Otherwise set it to the value the user specified when they clicked "Run Workflow"
+      #
     needs:
       - job_setup
       - job_precommit
@@ -185,11 +182,11 @@ jobs:
       - self-hosted
       - Linux
       - X64
-    #
-    # If the user who clicked "Run Workflow" button left the RUNNER_LABEL field blank,
-    # the default evaluated output is the string 'self-hosted'.
-    # Otherwise set it to the value the user specified when they clicked "Run Workflow"
-    #
+      #
+      # If the user who clicked "Run Workflow" button left the RUNNER_LABEL field blank,
+      # the default evaluated output is the string 'self-hosted'.
+      # Otherwise set it to the value the user specified when they clicked "Run Workflow"
+      #
     needs:
       - job_setup
       - job_precommit
@@ -229,4 +226,72 @@ jobs:
           check_name: "System test results"
           check_run: false
           files: build/Testing/SystemTests/**/TEST-systemtests*.xml
+
+
+  job_conda_packaging:
+    runs-on:
+      - ${{ (inputs.RUNNER_SELECTION == 'ANY' && 'self-hosted') || inputs.RUNNER_SELECTION }}
+      - self-hosted
+      - Linux
+      - X64    
+      #
+      # If the user who clicked "Run Workflow" button left the RUNNER_LABEL field blank,
+      # the default evaluated output is the string 'self-hosted'.
+      # Otherwise set it to the value the user specified when they clicked "Run Workflow"
+      #
+
+    needs:
+      - job_setup
+      - job_precommit
+      - job_check_conflict
+      - job_cpp_check
+      - job_doxygen
+
+    steps:
+      - name: placeholder
+        run: echo
+
+
+  job_docs_dev:
+    runs-on:
+      - ${{ (inputs.RUNNER_SELECTION == 'ANY' && 'self-hosted') || inputs.RUNNER_SELECTION }}
+      - self-hosted
+      - Linux
+      - X64    
+      #
+      # If the user who clicked "Run Workflow" button left the RUNNER_LABEL field blank,
+      # the default evaluated output is the string 'self-hosted'.
+      # Otherwise set it to the value the user specified when they clicked "Run Workflow"
+      #
+
+    needs:
+      - job_setup
+      - job_precommit
+      - job_check_conflict
+
+    steps:
+      - name: placeholder
+        run: echo
+
+
+  job_docs_user:
+    runs-on:
+      - ${{ (inputs.RUNNER_SELECTION == 'ANY' && 'self-hosted') || inputs.RUNNER_SELECTION }}
+      - self-hosted
+      - Linux
+      - X64    
+      #
+      # If the user who clicked "Run Workflow" button left the RUNNER_LABEL field blank,
+      # the default evaluated output is the string 'self-hosted'.
+      # Otherwise set it to the value the user specified when they clicked "Run Workflow"
+      #
+
+    needs:
+      - job_setup
+      - job_precommit
+      - job_check_conflict
+
+    steps:
+      - name: placeholder
+        run: echo
 
