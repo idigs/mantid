@@ -1,0 +1,14 @@
+name: 'Mantid Unit Test Action'
+description: 'Composite action for running Unit tests and publishing results'
+runs:
+  using: "composite"
+
+  steps:
+    - name: Run Unit Tests
+      run: echo
+      shell: bash
+
+    - name: Publish Results for Unit Tests
+      run: echo
+      shell: bash
+

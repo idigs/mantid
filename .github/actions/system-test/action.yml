@@ -1,0 +1,14 @@
+name: 'Mantid System Test Action'
+description: 'Composite action for running system tests and publishing results'
+runs:
+  using: "composite"
+
+  steps:
+    - name: Run System Tests
+      run: echo
+      shell: bash
+
+    - name: Publish Results for System Tests
+      run: echo
+      shell: bash
+
