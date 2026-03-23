@@ -1,8 +1,16 @@
-name: Linux unit tests and system tests
+name: Linux
 
 on:
   pull_request:
     types: [opened, synchronize, reopened]
+
+  workflow_dispatch:
+    inputs:
+      RUNNER_LABEL:
+        description: 'Match Runner Label'
+        required: false
+        type: string
+
 
 # cancel previous job if a new commit is pushed
 concurrency:
@@ -10,13 +18,71 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  linux-build-and-test:
-    runs-on: [self-hosted, linux, x64]
+  doxygen:
+    runs-on: ubuntu-latest
     steps:
+      - uses: actions/checkout@v6
+        if: ${{  github.ref_name == 'main' }}
+        with:
+          fetch-depth: 0
+
+      - uses: dorny/paths-filter@v4
+        id: changes
+        with:
+          filters: |
+            doxygen:
+              - '**/*.cpp'
+              - '**/*.h'
+              - '**/*.hxx'
+              - 'Framework/Doxygen/**'
+              - 'conda/recipes/mantid-developer/**'
+              - 'conda/recipes/conda_build_config.yaml'
+              - '.github/actions/doxygen-build/**'
+              - '.github/workflows/doxygen.yml'
+
+      - uses: actions/checkout@v6
+        if: ${{ steps.changes.outputs.doxygen == 'true' && github.ref_name != 'main' }}
+        with:
+          fetch-depth: 0
+
+      - uses: prefix-dev/setup-pixi@v0.9.4
+        if: steps.changes.outputs.doxygen == 'true'
+        with:
+          frozen: true
+
+      - uses: ./.github/actions/doxygen-build
+        name: Build doxygen
+        if: steps.changes.outputs.doxygen == 'true'
+
+
+  build-and-test:
+    needs: [doxygen]
+    runs-on:
+      - ${{ (inputs.RUNNER_LABEL == '' && 'self-hosted') || inputs.RUNNER_LABEL }}
+      - self-hosted
+      - Linux
+      - X64
+    #
+    # If the user who clicked "Run Workflow" button left the RUNNER_LABEL field blank,
+    # the default evaluated output is the string 'self-hosted'.
+    # Otherwise set it to the value the user specified when they clicked "Run Workflow"
+    #
+
+    steps:
+      - name: Print shell environment vars (debug)
+        if: github.event_name == 'workflow_dispatch'
+        run: |
+          env -0 | while IFS='' read -d '' line ; do printf '%s\t: %s\n' "${line%%=*}" "${line#*=}" | expand -t 30 | sed ':a;N;$!ba;s/\n/ /g'; done | LC_COLLATE=C sort -b
+      #
+      # If this workflow was triggered manually,
+      # print a sorted list of all shell environment variables
+      #
+
       - uses: actions/checkout@v4
         with:
           # Needed to fetch the tags for versioningit
-          fetch-depth: "0"
+          fetch-depth: 100
+          fetch-tags: true
 
       - name: Run unit tests and system tests on Linux
         run: ${GITHUB_WORKSPACE}/buildconfig/Jenkins/Conda/conda-buildscript ${GITHUB_WORKSPACE} linux-64-ci --enable-systemtests
