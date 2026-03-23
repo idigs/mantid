@@ -3,6 +3,13 @@ on:
   push:
     branches: [main]
 
+  workflow_dispatch:
+    inputs:
+      RUNNER_LABEL:
+        description: 'Match Runner Label'
+        required: false
+        type: string
+
 # cancel previous job if new commit is pushed
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
@@ -11,7 +18,17 @@ concurrency:
 jobs:
   doxygen:
     if: ${{ github.repository_owner == 'mantidproject' }}
-    runs-on: ubuntu-latest
+    runs-on:
+      - ${{ (inputs.RUNNER_LABEL == '' && 'self-hosted') || inputs.RUNNER_LABEL }}
+      - self-hosted
+      - Linux
+      - X64
+    #
+    # If the user who clicked "Run Workflow" button left the RUNNER_LABEL field blank,
+    # the default evaluated output is the string 'self-hosted'.
+    # Otherwise set it to the value the user specified when they clicked "Run Workflow"
+    #
+
     defaults:
       run:
         shell: bash -l {0}
